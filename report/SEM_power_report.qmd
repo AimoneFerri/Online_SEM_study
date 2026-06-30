@@ -1,0 +1,112 @@
+---
+title: "Power Simulation for a Latent Mediation SEM"
+subtitle: "Diet → Mental Health → Cognition, adjusted for covariates"
+author: "Aimone Ferri"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+library(dplyr)
+library(ggplot2)
+library(semPlot)
+
+power_long <- readRDS(here::here("outputs", "power_long.rds"))
+fit_example <- readRDS(here::here("outputs", "fit_example.rds"))
+```
+
+## Overview
+
+This report summarises a Monte Carlo power analysis for a structural equation model (SEM) with three latent factors — **DietHealthy**, **Mental** (mental health), and **Cog** (cognition) — connected by a mediation pathway (Diet → Mental → Cog), adjusted for sex, age, physical activity, socioeconomic status, and energy intake. The simulation supports sample size planning for a preregistered SEM study (OSF, currently under embargo). Full simulation code: [`scripts/SEM_power_covariates.R`](../scripts/SEM_power_covariates.R).
+
+## Simulation parameters
+
+| Parameter | Value |
+|---|---|
+| Sample sizes (N) | 400, 600, 800, 1000 |
+| Replications per N | 1000 |
+| Seed | 2025 |
+| Estimator | ML (`std.lv = TRUE`) |
+| Significance criterion | \|z\| > 1.96 (p < .05) |
+| Software | R, `lavaan` |
+
+For each replication, data are simulated from the population model below, the corresponding model is fit in `lavaan`, and a structural path is counted as "detected" when its standardized z-statistic exceeds 1.96 in absolute value. Power per path and sample size is the proportion of replications in which that path was detected.
+
+## Model variables
+
+**Latent factors and indicators**
+
+| Latent factor | Indicators | Population loadings |
+|---|---|---|
+| DietHealthy | d1–d6 | 0.7, 0.6, 0.5, 0.4, 0.3, 0.3 |
+| Mental | m1–m3 | 0.7, 0.7, 0.7 |
+| Cog | c1–c3 | 0.7, 0.7, 0.7 |
+
+**Structural paths**
+
+| Label | Path | Population effect |
+|---|---|---|
+| a | Mental ~ DietHealthy | 0.2 |
+| b | Cog ~ Mental | 0.2 |
+| c | Cog ~ DietHealthy (direct) | 0.2 |
+| ind | Indirect: a × b (Diet → Mental → Cog) | — |
+| total | Total: c + (a × b) | — |
+
+**Covariates** (DAG-informed adjustment set; all included as predictors of DietHealthy, Mental, and Cog at 0.1 each)
+
+| Covariate | Description |
+|---|---|
+| Sex | Binary, p = 0.5 |
+| Age | ~N(36, 5), truncated to 18–60 |
+| IPAQ | Physical activity category (1–3), per IPAQ classification |
+| SES | Z-scored composite of education and income |
+| Energy | Daily energy intake, scaled per 1000 kcal (centered ~2000 kcal) |
+
+## Power curves
+
+```{r}
+#| label: fig-power
+#| fig-cap: "Estimated power by structural path across sample sizes. Dashed lines mark conventional 80% and 90% power thresholds."
+ggplot(power_long, aes(x = N, y = power, color = path)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0.8, linetype = "dashed", color = "red") +
+  geom_hline(yintercept = 0.9, linetype = "dashed", color = "blue") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(
+    title = "Estimated Power vs Sample Size",
+    x = "Sample Size (N)",
+    y = "Power",
+    color = "Path"
+  ) +
+  theme_minimal()
+```
+
+## Model diagram
+
+The diagram below shows the standardized path estimates from a representative fitted model (final replication at the largest simulated sample size), illustrating the latent measurement structure and the mediation pathway.
+
+```{r}
+#| label: fig-semplot
+#| fig-cap: "Standardized path diagram for the fitted latent mediation model."
+semPaths(
+  fit_example,
+  what = "std",
+  layout = "spring",
+  style = "mx",
+  edge.label.cex = 1,
+  sizeLat = 8,
+  sizeMan = 6,
+  residuals = FALSE,
+  intercepts = FALSE
+)
+```
