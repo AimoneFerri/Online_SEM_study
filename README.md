@@ -10,7 +10,23 @@ Covariates are included following a DAG-informed selection approach: sex, age, p
 
 ### Contents
 
-`scripts/SEM_power_covariates.R` is the simulation code: model fitting, power calculation, and visualisation (power curves by sample size; model path diagram via `semPlot`)
+`scripts/SEM_power_covariates.R` — simulation code: model fitting, power calculation, and visualisation (power curves by sample size; model path diagram via `semPlot`)
+
+`scripts/run_simulation_cache.R` — thin wrapper that sources the above and saves outputs to `outputs/`
+
+`report/SEM_power_report.qmd` — Quarto report: loads pre-computed outputs and renders power curves, model/variable summary, and the SEM path diagram
+
+`report/SEM_power_report.html` — pre-rendered HTML report (open directly, no R needed)
+
+`outputs/` — cached simulation results (`.rds` files bridging the script and the report)
+
+### Reproducing results
+
+The R script and the Quarto report are complementary:
+
+- **To view results immediately**: open `report/SEM_power_report.html` in any browser.
+- **To re-render the report** from the cached outputs: `quarto render report/SEM_power_report.qmd`
+- **To regenerate simulation outputs from scratch**: run `scripts/SEM_power_covariates.R` (takes several minutes; saves `.rds` files to `outputs/`), then re-render the report.
 
 ### Main packages
 

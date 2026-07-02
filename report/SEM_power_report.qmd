@@ -9,13 +9,14 @@ format:
     toc: true
     code-fold: true
 execute:
-  echo: false
+  echo: true
   warning: false
   message: false
 ---
 
 ```{r}
 #| label: setup
+#| echo: false
 library(dplyr)
 library(ggplot2)
 library(semPlot)
