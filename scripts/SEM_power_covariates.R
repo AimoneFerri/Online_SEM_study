@@ -117,11 +117,12 @@ for(N in sample_sizes){
   power_results[[as.character(N)]] <- power_vec
 }
 
-#save and reload data if needed
+# Save outputs for the Quarto report
+# (reload with readRDS if needed instead of re-running the simulation)
 
-#saveRDS(power_results, file = "outputs/power_results_mediation_weak.rds")
-
-#power_results <- readRDS("outputs/power_results_mediation.rds")
+saveRDS(power_df,   file = "outputs/power_df.rds")
+saveRDS(power_long, file = "outputs/power_long.rds")
+saveRDS(fit,        file = "outputs/fit_example.rds")
 
 # Convert to long format for plotting 
 
