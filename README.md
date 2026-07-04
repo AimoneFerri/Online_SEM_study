@@ -1,5 +1,7 @@
 ## SEM Power Simulation for a Latent Mediation Model
 
+[![DOI](https://zenodo.org/badge/1284971028.svg)](https://doi.org/10.5281/zenodo.21193690) 
+
 Monte Carlo power analysis for a structural equation model (DietHealthy → Mental → Cog), adjusted for demographic and lifestyle covariates, across N = 400–1000 with 1000 replications per sample size.
 
 ### Contents
